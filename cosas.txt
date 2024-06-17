@@ -1,0 +1,74 @@
+---Mayor que---
+gt significa "greater than", que en español es "mayor que". 
+Se utiliza para filtrar los registros donde el valor del campo es mayor que el valor especificado.
+
+---Menor que---
+lt significa "less than", que en español es "menor que". 
+Se utiliza para filtrar los registros donde el valor del campo es menor que el valor especificado.
+
+--eliminaciones---
+.delete = eliminacion logica
+.update = actualizar o eliminar logicamente
+----------------------------------------------------------------
+.count = contar algo
+notas = DetalleNota.objects.filter(estudiante__id = id).count()
+
+--------------------------------------------
+El método .select_related en Django es una optimización de rendimiento que funciona creando una consulta SQL JOIN y seleccionando los campos relacionados de la base de datos. Se utiliza para reducir el número de consultas SQL necesarias para obtener los datos.
+ nota_estudiante = DetalleNota.objects.filter(estudiante__id = id).order_by("nota__periodo").select_related("nota__asignatura", "nota__periodo", "nota__profesor")
+-----------------------------------------
+El método .aggregate() en Django se utiliza para calcular valores agregados sobre un QuerySet, y devuelve un diccionario con los valores calculados.
+.aggregate(Avg("nota1"), Avg("nota2"))
+
+---------------------------------------------------
+Avg, es una función de agregación en Django que calcula el valor promedio de un campo específico en un conjunto de objetos
+(Avg("nota1"), Avg("nota2"))
+--------------------------------------------------------
+El método bulk_create en Django se utiliza para insertar múltiples objetos en la base de datos en una sola consulta SQL. Esto puede ser mucho más eficiente que llamar a create() en un bucle, ya que reduce la cantidad de consultas SQL que se realizan.
+--------------------------------------------------
+El método startswith es una función incorporada en Python que se utiliza para verificar si una cadena comienza con una subcadena específica. Devuelve True si la cadena comienza con la subcadena especificada y False en caso contrario.
+---------------------------------------------------------------
+Q es una clase en Django que se utiliza para crear consultas complejas con operadores lógicos OR y AND.
+
+asignaturas = Asignatura.objects.filter(Q(descripcion__icontains='si') | Q(descripcion__endswith='5'))
+
+Q(descripcion__icontains='si') | Q(descripcion__endswith='5') está creando una consulta que busca objetos Asignatura cuyo campo descripcion contiene la cadena 'si' (ignorando mayúsculas y minúsculas debido a icontains) O cuyo campo descripcion termina con la cadena '5' (debido a endswith).
+
+El operador | entre las dos instancias de Q representa un OR lógico, por lo que un objeto Asignatura coincidirá con el filtro si cumple cualquiera de las dos condiciones.
+
+----------------------------------------------------
+F
+La clase F en Django se utiliza para hacer referencia a los campos de un modelo dentro de una consulta. Esto es útil cuando necesitas comparar el valor de un campo con el valor de otro campo en el mismo modelo, o cuando necesitas hacer operaciones en el valor de un campo.
+Por ejemplo, si tienes un modelo Producto con campos precio y descuento, podrías usar F para calcular el precio después del descuento para cada producto en tu base de datos:
+from django.db.models import F
+
+productos = Producto.objects.annotate(precio_descuento=F('precio') - F('descuento'))
+--------------------------------------------------------------
+.exclude
+El método exclude en Django se utiliza para excluir de un QuerySet los objetos que cumplen con los criterios especificados. Es lo opuesto al método filter.
+-------------------------------------------
+.annotate
+El método .annotate() en Django se utiliza para agregar cálculos a cada objeto en un QuerySet y devolver los resultados. Estos cálculos pueden ser agregaciones (como Sum, Avg, Count, etc.) o cualquier otra expresión que Django pueda calcular en la base de datos.
+Por ejemplo, si tienes un modelo Estudiante con un campo nota, podrías usar annotate para agregar la nota promedio de cada estudiante a los resultados de la consulta:
+
+from django.db.models import Avg
+estudiantes = Estudiante.objects.annotate(nota_promedio=Avg('nota'))
+------------------------------------------
+El método .distinct() en Django se utiliza para eliminar duplicados de un QuerySet. Devuelve un nuevo QuerySet que contiene objetos únicos.
+
+Por ejemplo, si tienes un modelo Estudiante y cada estudiante está asociado con una Escuela, podrías obtener todas las escuelas con estudiantes así:
+escuelas = Estudiante.objects.values('escuela').distinct()
+---------------------------------------------------------
+La clase ExpressionWrapper en Django se utiliza para envolver otras expresiones y proporcionarles un tipo de salida. Esto es útil cuando estás utilizando una expresión que devuelve un tipo de dato que no es el esperado por Django.
+Por ejemplo, si estás realizando una operación matemática en dos campos de un modelo, el resultado podría ser un número de punto flotante. Sin embargo, Django podría esperar un entero. Para solucionar esto, puedes usar ExpressionWrapper para indicarle a Django que el resultado de la expresión será un número de punto flotante.
+from django.db.models import F, FloatField, ExpressionWrapper
+
+# Supongamos que 'campo1' y 'campo2' son campos IntegerField
+expresion = ExpressionWrapper(F('campo1') / F('campo2'), output_field=FloatField())
+
+# Ahora puedes usar 'expresion' en una consulta
+resultados = MiModelo.objects.annotate(resultado=expresion)
+
+En este caso, F('campo1') / F('campo2') es una expresión que divide el valor de campo1 por el valor de campo2. Sin embargo, dado que ambos campos son IntegerField, Django esperaría que el resultado también sea un IntegerField. Al envolver la expresión con ExpressionWrapper y proporcionar output_field=FloatField(), le estamos diciendo a Django que el resultado de la expresión será un FloatField, no un IntegerField.
+------------------------------------------
+El método .get() en Django se utiliza para recuperar un único objeto que coincide con los parámetros de búsqueda especificados. Devuelve un objeto del modelo que coincide con los parámetros de búsqueda dados.
